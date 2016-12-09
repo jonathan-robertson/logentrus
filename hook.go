@@ -11,12 +11,11 @@ import (
 
 // LogentriesHook to send logs via logentries service
 type LogentriesHook struct {
-	AppName  string
-	HostName string
+	Token    string
 	Priority logrus.Level
 
-	Token string
-	conn  net.Conn
+	formatter *logrus.JSONFormatter
+	conn      net.Conn
 }
 
 const (
@@ -25,18 +24,20 @@ const (
 )
 
 // NewLogentriesHook creates and returns a new hook to an instance of logger.
-// `hook, err := NewLogentriesHook("leServer", "leApp", "2bfbea1e-10c3-4419-bdad-7e6435882e1f", logrus.InfoLevel, nil)`
+// `hook, err := NewLogentriesHook("2bfbea1e-10c3-4419-bdad-7e6435882e1f", "Jan 2 15:04:05", logrus.InfoLevel, nil)`
 // `if err == nil { log.Hooks.Add(hook) }`
-// NOTE: setting config to nil means that conn will use root certs already set up on local system
 // Can provide own root certs by using example found here: https://golang.org/pkg/crypto/tls/#example_Dial
-func NewLogentriesHook(hostName, appName, token string, priority logrus.Level, config *tls.Config) (*LogentriesHook, error) {
+func NewLogentriesHook(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*LogentriesHook, error) {
+	if token == "" {
+		return nil, fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
+	}
+
 	tlsConn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), config)
 	hook := &LogentriesHook{
-		AppName:  appName,
-		HostName: hostName,
-		Priority: priority,
-		Token:    token,
-		conn:     tlsConn,
+		Priority:  priority,
+		Token:     token,
+		formatter: &logrus.JSONFormatter{TimestampFormat: timestampFormat},
+		conn:      tlsConn,
 	}
 
 	return hook, err
@@ -44,7 +45,7 @@ func NewLogentriesHook(hostName, appName, token string, priority logrus.Level, c
 
 // Fire sends entry to Logentries
 func (hook *LogentriesHook) Fire(entry *logrus.Entry) error {
-	line, err := entry.String()
+	line, err := hook.format(entry)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to read entry, %v", err)
 		return err
@@ -58,6 +59,15 @@ func (hook *LogentriesHook) Fire(entry *logrus.Entry) error {
 	}
 
 	return nil
+}
+
+func (hook LogentriesHook) format(entry *logrus.Entry) (string, error) {
+	serialized, err := hook.formatter.Format(entry)
+	if err != nil {
+		return "", err
+	}
+	str := string(serialized)
+	return str, nil
 }
 
 // Levels returns the log levels supported by LogentriesHook
