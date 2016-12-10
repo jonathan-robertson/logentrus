@@ -31,7 +31,7 @@ import (
 
 func init() {
 	logrus.SetLevel(logrus.InfoLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{}) // hook will always format as JSON with its own formatter
+	logrus.SetFormatter(&logrus.TextFormatter{}) // logentrus hook will always submit JSON to Logentries
 
 	hook, err := logentrus.New(
 		os.Getenv("TOKEN"), // grabbing this from environment variable
