@@ -1,3 +1,5 @@
+// Package logentrus acts as a Logentries (https://logentries.com) hook
+// for Logrus (https://github.com/sirupsen/logrus)
 package logentrus
 
 import (
@@ -23,9 +25,7 @@ const (
 	port = 443
 )
 
-// New creates and returns a new hook to an instance of logger.
-// `hook, err := New("2bfbea1e-10c3-4419-bdad-7e6435882e1f", "Jan 2 15:04:05", logrus.InfoLevel, nil)`
-// `if err == nil { log.Hooks.Add(hook) }`
+// New creates and returns a new hook for use in Logrus
 func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*Hook, error) {
 	if token == "" {
 		return nil, fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
@@ -42,7 +42,7 @@ func New(token, timestampFormat string, priority logrus.Level, config *tls.Confi
 	return hook, err
 }
 
-// Fire sends entry to Logentries
+// Fire formats and sends JSON entry to Logentries service
 func (hook *Hook) Fire(entry *logrus.Entry) error {
 	line, err := hook.format(entry)
 	if err != nil {
@@ -69,7 +69,7 @@ func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	return str, nil
 }
 
-// Levels returns the log levels supported by LogentriesHook
+// Levels returns the log levels supported by this hook
 func (hook *Hook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
