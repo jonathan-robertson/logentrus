@@ -1,4 +1,4 @@
-package logrus_logentries
+package logrusentries
 
 import (
 	"crypto/tls"
@@ -23,11 +23,11 @@ const (
 	port = 443
 )
 
-// NewLogentriesHook creates and returns a new hook to an instance of logger.
+// New creates and returns a new hook to an instance of logger.
 // `hook, err := NewLogentriesHook("2bfbea1e-10c3-4419-bdad-7e6435882e1f", "Jan 2 15:04:05", logrus.InfoLevel, nil)`
 // `if err == nil { log.Hooks.Add(hook) }`
 // Can provide own root certs by using example found here: https://golang.org/pkg/crypto/tls/#example_Dial
-func NewLogentriesHook(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*LogentriesHook, error) {
+func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*LogentriesHook, error) {
 	if token == "" {
 		return nil, fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
 	}

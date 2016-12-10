@@ -1,4 +1,4 @@
-package logrus_logentries
+package logrusentries
 
 import (
 	"os"
