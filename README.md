@@ -1,6 +1,4 @@
-# Logentrus | a helpful hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
-[Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus)
-
+# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
 # Install
@@ -19,7 +17,7 @@ I'd **strongly recommend against storing the token directly in your source code*
 I personally use Environment Variables for testing purposes and have done so in the example provided below.
 
 # Usage
-Just like with Logrus, it's best to define your options and attach this hook within `init` or in some early stage of your program.
+Just like with Logrus, it's best to define your options in `init` or in some early stage of your program.
 
 ```go
 package main
@@ -54,26 +52,11 @@ func main() {
 ```
 
 # Features
-## Hook does its own formatting
-tl;dr: Hook has its own logrus.JSONFormatter that's automatically set and called exactly the same way that it is for Logrus.
-You can set the TimestampFormat when calling NewLogentriesHook.
+## Logentrus does its own formatting
+Since Logentries prefers JSON formatting, I didn't want to require it to be set in Logrus. Instead, there is a separate logrus.JSONFormatter within this hook that processes the log entries for you automatically.
+You have the option of setting the logrus.JSONFormatter.TimestampFormatter value when calling logentrus.New if there's a Timestamp format you prefer.
 
-#### Why?
-The TextLogger option for Logrus is incredibly well formatted and I am a huge fan of it. It even colors the prefix (grey for `DEBU`, blue for `INFO`, red for `ERR`, etc)
-
-```
-DEBU[0001] This is another debug
-INFO[0001] This is another info
-ERRO[0001] This is another error
-```
-
-Unfortunately, sending data formatted with TextLogger to Logentries is... ugly:
-
-```
-[37mDEBU[0m[0000] This is debug
-[34mINFO[0m[0000] This is info
-[31mERRO[0m[0000] This is an error
-```
-
-Logentries has several display formats available for JSON-formatted data, so sending the entry as JSON string is a no-brainer.
-
+## You can provide your own set of root certs
+This is a feature of Google's `crypto/tls` package that you can apply to logentrus.
+First you'll want to create a `tls.Config` by following this example: https://golang.org/pkg/crypto/tls/#example_Dial
+After that, you can drop your `tls.Config` into logentrus.New.
