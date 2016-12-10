@@ -1,4 +1,4 @@
-# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
+# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/> [![GoDoc](https://godoc.org/github.com/puddingfactory/logentrus?status.svg)](https://godoc.org/github.com/puddingfactory/logentrus)
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
 # Install
