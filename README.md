@@ -1,5 +1,5 @@
-# Description
-This is a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus). If you aren't already using Logrus, please take the time to check out its [project page](https://github.com/sirupsen/logrus) since it has a pretty good chance of making your life as a developer (in maintaining your app) a LOT easier.
+# Logrusentries | a helpful hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
+Logrusentries is a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus).
 
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
@@ -21,12 +21,21 @@ I personally use Environment Variables for testing purposes and have done so in 
 Just like with Logrus, it's best to define your options and attach this hook within `init` or in some early stage of your program.
 
 ```go
+package main
+
+import (
+	"os"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/puddingfactory/logrusentries"
+)
+
 func init() {
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{}) // hook will always format as JSON with its own formatter
 
-	hook, err := NewLogentriesHook(
-		os.Getenv("TOKEN"),
+	hook, err := logrusentries.New(
+		os.Getenv("TOKEN"), // grabbing this from environment variable
 		"Jan 2 15:04:05",   // setting empty string here will default to logrus's typically time format
 		logrus.InfoLevel,   // since set to InfoLevel, DebugLevel is the only level that will be ignored
 		nil,                // setting config to nil means that conn will use root certs from local system
@@ -35,6 +44,11 @@ func init() {
 		panic(err)
 	}
 	logrus.AddHook(hook)
+}
+
+func main() {
+	logrus.Debug("This is a debug entry that should *not* show in logentries")
+	logrus.Info("This is an info entry that should show up in logentries")
 }
 ```
 
