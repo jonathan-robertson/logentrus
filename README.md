@@ -13,8 +13,7 @@ First, you should get a token for your logentries account, which you'll need to 
 4. Set your values such as your Log Name and Log Set
 5. Receive your token!
 
-I'd **strongly recommend against storing the token directly in your source code**.
-I personally use Environment Variables for testing purposes and have done so in the example provided below.
+I'd **strongly recommend against storing the token directly in your source code**. I personally use Environment Variables for testing purposes and have done so in the example provided below.
 
 # Usage
 Just like with Logrus, it's best to define your options in `init` or in some early stage of your program.
@@ -54,9 +53,11 @@ func main() {
 # Features
 ## Logentrus does its own formatting
 Since Logentries prefers JSON formatting, I didn't want to require it to be set in Logrus. Instead, there is a separate logrus.JSONFormatter within this hook that processes the log entries for you automatically.
+
 You have the option of setting the logrus.JSONFormatter.TimestampFormatter value when calling logentrus.New if there's a Timestamp format you prefer.
 
 ## You can provide your own set of root certs
 This is a feature of Google's `crypto/tls` package that you can apply to logentrus.
-First you'll want to create a `tls.Config` by following this example: https://golang.org/pkg/crypto/tls/#example_Dial
-After that, you can drop your `tls.Config` into logentrus.New.
+
+1. First you'll want to create a `tls.Config` by following this example: https://golang.org/pkg/crypto/tls/#example_Dial
+2. After that, you can drop your `tls.Config` into logentrus.New.
