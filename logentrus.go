@@ -1,4 +1,4 @@
-package logrusentries
+package logentrus
 
 import (
 	"crypto/tls"
@@ -9,8 +9,8 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-// LogentriesHook to send logs via logentries service
-type LogentriesHook struct {
+// Hook used to send logs to logentries
+type Hook struct {
 	Token    string
 	Priority logrus.Level
 
@@ -24,16 +24,15 @@ const (
 )
 
 // New creates and returns a new hook to an instance of logger.
-// `hook, err := NewLogentriesHook("2bfbea1e-10c3-4419-bdad-7e6435882e1f", "Jan 2 15:04:05", logrus.InfoLevel, nil)`
+// `hook, err := New("2bfbea1e-10c3-4419-bdad-7e6435882e1f", "Jan 2 15:04:05", logrus.InfoLevel, nil)`
 // `if err == nil { log.Hooks.Add(hook) }`
-// Can provide own root certs by using example found here: https://golang.org/pkg/crypto/tls/#example_Dial
-func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*LogentriesHook, error) {
+func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*Hook, error) {
 	if token == "" {
 		return nil, fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
 	}
 
 	tlsConn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), config)
-	hook := &LogentriesHook{
+	hook := &Hook{
 		Priority:  priority,
 		Token:     token,
 		formatter: &logrus.JSONFormatter{TimestampFormat: timestampFormat},
@@ -44,7 +43,7 @@ func New(token, timestampFormat string, priority logrus.Level, config *tls.Confi
 }
 
 // Fire sends entry to Logentries
-func (hook *LogentriesHook) Fire(entry *logrus.Entry) error {
+func (hook *Hook) Fire(entry *logrus.Entry) error {
 	line, err := hook.format(entry)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to read entry, %v", err)
@@ -61,7 +60,7 @@ func (hook *LogentriesHook) Fire(entry *logrus.Entry) error {
 	return nil
 }
 
-func (hook LogentriesHook) format(entry *logrus.Entry) (string, error) {
+func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	serialized, err := hook.formatter.Format(entry)
 	if err != nil {
 		return "", err
@@ -71,6 +70,6 @@ func (hook LogentriesHook) format(entry *logrus.Entry) (string, error) {
 }
 
 // Levels returns the log levels supported by LogentriesHook
-func (hook *LogentriesHook) Levels() []logrus.Level {
+func (hook *Hook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }

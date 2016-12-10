@@ -1,12 +1,12 @@
-# Logrusentries | a helpful hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
-Logrusentries is a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus).
+# Logentrus | a helpful hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
+[Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus)
 
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
 # Install
-`go get -u github.com/sirupsen/logrus github.com/puddingfactory/logrus-logentries-hook`
+`go get -u github.com/sirupsen/logrus github.com/puddingfactory/logentrus`
 
-# Usage
+# Setup
 First, you should get a token for your logentries account, which you'll need to feed into your app somehow.
 
 1. Log into your logentries account
@@ -18,6 +18,7 @@ First, you should get a token for your logentries account, which you'll need to 
 I'd **strongly recommend against storing the token directly in your source code**.
 I personally use Environment Variables for testing purposes and have done so in the example provided below.
 
+# Usage
 Just like with Logrus, it's best to define your options and attach this hook within `init` or in some early stage of your program.
 
 ```go
@@ -27,14 +28,14 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/puddingfactory/logrusentries"
+	"github.com/puddingfactory/logentrus"
 )
 
 func init() {
 	logrus.SetLevel(logrus.InfoLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{}) // hook will always format as JSON with its own formatter
 
-	hook, err := logrusentries.New(
+	hook, err := logentrus.New(
 		os.Getenv("TOKEN"), // grabbing this from environment variable
 		"Jan 2 15:04:05",   // setting empty string here will default to logrus's typically time format
 		logrus.InfoLevel,   // since set to InfoLevel, DebugLevel is the only level that will be ignored
