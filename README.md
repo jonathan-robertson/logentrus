@@ -33,7 +33,7 @@ func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{}) // logentrus hook will always submit JSON to Logentries
 
 	hook, err := logentrus.New(
-		os.Getenv("TOKEN"), // grabbing this from environment variable
+		os.Getenv("TOKEN"), // grabbing Logentries Token from environment variable
 		"Jan 2 15:04:05",   // setting empty string here will default to logrus's typically time format
 		logrus.InfoLevel,   // since set to InfoLevel, DebugLevel is the only level that will be ignored
 		nil,                // setting config to nil means that conn will use root certs from local system
