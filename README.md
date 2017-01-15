@@ -24,7 +24,7 @@ package main
 import (
 	"os"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/puddingfactory/logentrus"
 )
 
