@@ -1,5 +1,5 @@
 // Package logentrus acts as a Logentries (https://logentries.com) hook
-// for Logrus (https://github.com/sirupsen/logrus)
+// for Logrus (https://github.com/Sirupsen/logrus)
 package logentrus
 
 import (
@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 )
 
 // Hook used to send logs to logentries

@@ -1,8 +1,8 @@
-# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/> [![GoDoc](https://godoc.org/github.com/puddingfactory/logentrus?status.svg)](https://godoc.org/github.com/puddingfactory/logentrus)
+# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/Sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/> [![GoDoc](https://godoc.org/github.com/puddingfactory/logentrus?status.svg)](https://godoc.org/github.com/puddingfactory/logentrus)
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
 # Install
-`go get -u github.com/sirupsen/logrus github.com/puddingfactory/logentrus`
+`go get -u github.com/Sirupsen/logrus github.com/puddingfactory/logentrus`
 
 # Setup
 First, you should get a token for your logentries account, which you'll need to feed into your app somehow.
@@ -24,7 +24,7 @@ package main
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/puddingfactory/logentrus"
 )
 
