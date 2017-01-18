@@ -46,13 +46,13 @@ func New(token, timestampFormat string, priority logrus.Level, config *tls.Confi
 func (hook *Hook) Fire(entry *logrus.Entry) error {
 	line, err := hook.format(entry)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to read entry, %v", err)
+		fmt.Fprintf(os.Stderr, "Unable to read entry | err: %v | entry: %+v", err, entry)
 		return err
 	}
 
 	if entry.Level <= hook.Priority {
 		if _, err := hook.conn.Write([]byte(hook.Token + line)); err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to write to conn, %v", err)
+			fmt.Fprintf(os.Stderr, "Unable to write to conn | err: %v | line: %s", err, line)
 			return err
 		}
 	}
