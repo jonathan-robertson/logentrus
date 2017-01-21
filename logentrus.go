@@ -58,6 +58,7 @@ func (hook *Hook) Fire(entry *logrus.Entry) (err error) {
 		for i := 0; i < retryCount; i++ {
 			time.Sleep(time.Second) // Rest 1 second between retries
 			fmt.Fprintf(os.Stderr, "WARNING: Trouble writing to conn; retrying %d of %d | err: %v\n", i, retryCount, err)
+			fmt.Fprintf(os.Stderr, ">>> hook.conn.Close() err: %v\n", hook.conn.Close())
 			if dialErr := hook.dial(); dialErr != nil { // Problem with write, so dial new connection and retry if possible
 				fmt.Fprintf(os.Stderr, "ERROR: Unable to dial new connection | dialErr: %v\n", dialErr)
 				return err
