@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"time"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -46,6 +45,11 @@ func New(token, timestampFormat string, priority logrus.Level, config *tls.Confi
 	return
 }
 
+// Levels returns the log levels supported by this hook
+func (hook *Hook) Levels() []logrus.Level {
+	return hook.levels
+}
+
 // Fire formats and sends JSON entry to Logentries service
 func (hook *Hook) Fire(entry *logrus.Entry) (err error) {
 	line, err := hook.format(entry)
@@ -54,22 +58,7 @@ func (hook *Hook) Fire(entry *logrus.Entry) (err error) {
 		return err
 	}
 
-	if err = hook.write(line); err != nil { // First write attempt
-		for i := 0; i < retryCount; i++ {
-			time.Sleep(time.Second) // Rest 1 second between retries
-			fmt.Fprintf(os.Stderr, "WARNING: Trouble writing to conn; retrying %d of %d | err: %v\n", i, retryCount, err)
-			fmt.Fprintf(os.Stderr, ">>> hook.conn.Close() err: %v\n", hook.conn.Close())
-			if dialErr := hook.dial(); dialErr != nil { // Problem with write, so dial new connection and retry if possible
-				fmt.Fprintf(os.Stderr, "ERROR: Unable to dial new connection | dialErr: %v\n", dialErr)
-				return err
-			}
-			if err = hook.write(line); err == nil { // Retry write
-				break
-			}
-		}
-	}
-
-	if err != nil {
+	if err = hook.write(line); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Unable to write to conn | err: %v | line: %s\n", err, line)
 	}
 
@@ -81,8 +70,24 @@ func (hook *Hook) dial() (err error) {
 	return
 }
 
-func (hook Hook) write(line string) (err error) {
-	_, err = hook.conn.Write([]byte(hook.token + line))
+func (hook *Hook) write(line string) (err error) {
+	data := []byte(hook.token + line)
+
+	_, err = hook.conn.Write(data)
+	for i := 0; err != nil && i < retryCount; i++ {
+		fmt.Fprintf(os.Stderr, "WARNING: Trouble writing to conn; retrying %d of %d | err: %v\n", i, retryCount, err)
+
+		hook.conn.Close()                           // close connection and ignore error
+		if dialErr := hook.dial(); dialErr != nil { // Problem with write, so dial new connection and retry if possible
+			fmt.Fprintf(os.Stderr, "ERROR: Unable to dial new connection | dialErr: %v\n", dialErr)
+			return err
+		}
+
+		if _, err = hook.conn.Write(data); err == nil {
+			fmt.Fprint(os.Stderr, "RECOVERED: Connection redialed and wrote successfully")
+		}
+	}
+
 	return
 }
 
@@ -93,9 +98,4 @@ func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	}
 	str := string(serialized)
 	return str, nil
-}
-
-// Levels returns the log levels supported by this hook
-func (hook *Hook) Levels() []logrus.Level {
-	return hook.levels
 }
