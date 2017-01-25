@@ -73,18 +73,17 @@ func (hook *Hook) dial() (err error) {
 func (hook *Hook) write(line string) (err error) {
 	data := []byte(hook.token + line)
 
-	_, err = hook.conn.Write(data)
+	_, err = hook.conn.Write(data) // initial write attempt
 	for i := 0; err != nil && i < retryCount; i++ {
 		fmt.Fprintf(os.Stderr, "WARNING: Trouble writing to conn; retrying %d of %d | err: %v\n", i, retryCount, err)
-
 		hook.conn.Close()                           // close connection and ignore error
 		if dialErr := hook.dial(); dialErr != nil { // Problem with write, so dial new connection and retry if possible
 			fmt.Fprintf(os.Stderr, "ERROR: Unable to dial new connection | dialErr: %v\n", dialErr)
 			return err
 		}
 
-		if _, err = hook.conn.Write(data); err == nil {
-			fmt.Fprint(os.Stderr, "RECOVERED: Connection redialed and wrote successfully")
+		if _, err = hook.conn.Write(data); err == nil { // retry write
+			fmt.Fprintln(os.Stderr, "RECOVERED: Connection redialed and wrote successfully")
 		}
 	}
 
