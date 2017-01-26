@@ -20,8 +20,9 @@ type Hook struct {
 }
 
 const (
-	host = "data.logentries.com"
-	port = 443
+	version = "v1.0.2"
+	host    = "data.logentries.com"
+	port    = 443
 )
 
 // New creates and returns a new hook for use in Logrus
