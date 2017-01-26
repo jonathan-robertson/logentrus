@@ -17,13 +17,11 @@ type Hook struct {
 	token     string
 	formatter *logrus.JSONFormatter
 	tlsConfig *tls.Config
-	conn      net.Conn
 }
 
 const (
-	host       = "data.logentries.com"
-	port       = 443
-	retryCount = 3
+	host = "data.logentries.com"
+	port = 443
 )
 
 // New creates and returns a new hook for use in Logrus
@@ -40,7 +38,11 @@ func New(token, timestampFormat string, priority logrus.Level, config *tls.Confi
 			},
 		}
 
-		err = hook.dial()
+		// Test connection
+		if conn, err := hook.dial(); err == nil {
+			conn.Close()
+		}
+
 	}
 	return
 }
@@ -65,31 +67,21 @@ func (hook *Hook) Fire(entry *logrus.Entry) (err error) {
 	return
 }
 
-func (hook *Hook) dial() (err error) {
-	hook.conn, err = tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), hook.tlsConfig)
-	return
+// dial establishes a new connection which caller responsible for closing
+func (hook Hook) dial() (net.Conn, error) {
+	return tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), hook.tlsConfig)
 }
 
+// write dials a connection and writes token and line in bytes to connection
 func (hook *Hook) write(line string) (err error) {
-	data := []byte(hook.token + line)
-
-	_, err = hook.conn.Write(data) // initial write attempt
-	for i := 0; err != nil && i < retryCount; i++ {
-		fmt.Fprintf(os.Stderr, "WARNING: Trouble writing to conn; retrying %d of %d | err: %v\n", i, retryCount, err)
-		hook.conn.Close()                           // close connection and ignore error
-		if dialErr := hook.dial(); dialErr != nil { // Problem with write, so dial new connection and retry if possible
-			fmt.Fprintf(os.Stderr, "ERROR: Unable to dial new connection | dialErr: %v\n", dialErr)
-			return err
-		}
-
-		if _, err = hook.conn.Write(data); err == nil { // retry write
-			fmt.Fprintln(os.Stderr, "RECOVERED: Connection redialed and wrote successfully")
-		}
+	if conn, err := hook.dial(); err == nil {
+		defer conn.Close()
+		_, err = conn.Write([]byte(hook.token + line))
 	}
-
 	return
 }
 
+// format serializes the entry as JSON regardless of logentries's overall formatting
 func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	serialized, err := hook.formatter.Format(entry)
 	if err != nil {
