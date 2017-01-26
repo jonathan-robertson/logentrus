@@ -1,5 +1,5 @@
 // Package logentrus acts as a Logentries (https://logentries.com) hook
-// for Logrus (https://github.com/sirupsen/logrus)
+// for Logrus (https://github.com/Sirupsen/logrus)
 package logentrus
 
 import (
@@ -8,16 +8,15 @@ import (
 	"net"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 )
 
 // Hook used to send logs to logentries
 type Hook struct {
-	Token    string
-	Priority logrus.Level
-
+	levels    []logrus.Level
+	token     string
 	formatter *logrus.JSONFormatter
-	conn      net.Conn
+	tlsConfig *tls.Config
 }
 
 const (
@@ -26,40 +25,63 @@ const (
 )
 
 // New creates and returns a new hook for use in Logrus
-func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (*Hook, error) {
+func New(token, timestampFormat string, priority logrus.Level, config *tls.Config) (hook *Hook, err error) {
 	if token == "" {
-		return nil, fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
-	}
+		err = fmt.Errorf("Unable to create new LogentriesHook since a Token is required")
+	} else {
+		hook = &Hook{
+			levels:    logrus.AllLevels[:priority+1], // Include all levels at or within the provided priority
+			token:     token,
+			tlsConfig: config,
+			formatter: &logrus.JSONFormatter{
+				TimestampFormat: timestampFormat,
+			},
+		}
 
-	tlsConn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), config)
-	hook := &Hook{
-		Priority:  priority,
-		Token:     token,
-		formatter: &logrus.JSONFormatter{TimestampFormat: timestampFormat},
-		conn:      tlsConn,
-	}
+		// Test connection
+		if conn, err := hook.dial(); err == nil {
+			conn.Close()
+		}
 
-	return hook, err
+	}
+	return
+}
+
+// Levels returns the log levels supported by this hook
+func (hook *Hook) Levels() []logrus.Level {
+	return hook.levels
 }
 
 // Fire formats and sends JSON entry to Logentries service
-func (hook *Hook) Fire(entry *logrus.Entry) error {
+func (hook *Hook) Fire(entry *logrus.Entry) (err error) {
 	line, err := hook.format(entry)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to read entry | err: %v | entry: %+v", err, entry)
+		fmt.Fprintf(os.Stderr, "Unable to read entry | err: %v | entry: %+v\n", err, entry)
 		return err
 	}
 
-	if entry.Level <= hook.Priority {
-		if _, err := hook.conn.Write([]byte(hook.Token + line)); err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to write to conn | err: %v | line: %s", err, line)
-			return err
-		}
+	if err = hook.write(line); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: Unable to write to conn | err: %v | line: %s\n", err, line)
 	}
 
-	return nil
+	return
 }
 
+// dial establishes a new connection which caller responsible for closing
+func (hook Hook) dial() (net.Conn, error) {
+	return tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), hook.tlsConfig)
+}
+
+// write dials a connection and writes token and line in bytes to connection
+func (hook *Hook) write(line string) (err error) {
+	if conn, err := hook.dial(); err == nil {
+		defer conn.Close()
+		_, err = conn.Write([]byte(hook.token + line))
+	}
+	return
+}
+
+// format serializes the entry as JSON regardless of logentries's overall formatting
 func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	serialized, err := hook.formatter.Format(entry)
 	if err != nil {
@@ -67,9 +89,4 @@ func (hook Hook) format(entry *logrus.Entry) (string, error) {
 	}
 	str := string(serialized)
 	return str, nil
-}
-
-// Levels returns the log levels supported by this hook
-func (hook *Hook) Levels() []logrus.Level {
-	return logrus.AllLevels
 }
