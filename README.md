@@ -59,6 +59,23 @@ func main() {
 }
 ```
 
+Each field in logentrus.Opts is entirely optional and will have some default value if necessary.
+
+Option | Description | Default | Valid options
+--- | --- | --- | ---
+Priority | set a threshold for log severity that should make it to Logentries | `logrus.DebugLevel` (all log types to be sent to Logentries) | `logrus.DebugLevel`, `logrus.InfoLevel`, `logrus.WarnLevel`, `logrus.ErrorLevel`, `logrus.FatalLevel`, `logrus.PanicLevel`
+TimestampFormat | Change the timestamp format | logrus's default time format | `"Jan 2 15:04:05"`, or any format accepted by Golang
+EncTLSConfig | provide a tls config to use embedded ca cert(s) | `nil` (use system's root certs) | see [this example](https://golang.org/pkg/crypto/tls/#example_Dial)
+UnencryptedTCP | `true` to disable encryption and still use TCP | `false` | `true` / `false`
+UnencryptedUDP | `true` this to disable encryption and use UDP | `false` | `true` / `false`
+UnencryptedPort | if using an unencrypted connection, choose a port here | `514` | `80`, `514`, and `10000`
+
+Note that the entire logentrus.Opts param is optional as well. So if you're happy with the defaults, just enter `nil` as shown below:
+
+```go
+hook, err := logentrus.New(logentriesToken, nil)
+```
+
 ## Features
 
 ### Logentrus does its own formatting
@@ -67,10 +84,31 @@ Since Logentries prefers JSON formatting, I didn't want to require it to be set 
 
 You have the option of setting the logrus.JSONFormatter.TimestampFormatter value when calling logentrus.New if there's a Timestamp format you prefer.
 
+```go
+hook, err := logentrus.New(
+	logentriesToken,
+	&logentrus.Opts{
+		TimestampFormat: "Jan 2 15:04:05",
+	},
+)
+```
+
 ### Support for various transmission types
 
-- Send data encrypted (TLS) over TCP, which is the default.
-- Or, if you prefer, you can opt to use either TCP or UDP over an unencrypted connection.
+As a safety-net, data is sent with encrypted (TLS) over TCP by default.
+
+But for those sitautions where you know that you'll only be transmitting non-sensitive data, then switching away from the default to an unencrypted TCP or UDP connection may have a noticable impact on the speed of our program - particularly if it's log-heavy.
+
+```go
+hook, err := logentrus.New(
+	logentriesToken,
+	&logentrus.Opts{
+		UnencryptedTCP:  true,  // disable encryption, but still use TCP
+		UnencryptedUDP:  false, // disable encryption and use UDP
+		UnencryptedPort: 514,   // omitting will result in port 514 usage; valid options are 80, 514, and 10000
+	},
+)
+```
 
 ### You can provide your own set of root certs when using NewEncryptedHook
 
@@ -78,3 +116,12 @@ This is a feature of Google's `crypto/tls` package that you can apply to logentr
 
 1. First you'll want to create a `tls.Config` by following [this example](https://golang.org/pkg/crypto/tls/#example_Dial).
 - After that, you can drop your `tls.Config` into logentrus.New.
+
+```go
+hook, err := logentrus.New(
+	logentriesToken,
+	&logentrus.Opts{
+		EncTLSConfig: theConfig,
+	},
+)
+```
