@@ -11,10 +11,10 @@
 First, you should get a token for your logentries account, which you'll need to feed into your app somehow.
 
 1. Log into your logentries account
-- Navigate to create Add New Log
-- Select Manual (specifically since we're using the Token-based approach)
-- Set your values such as your Log Name and Log Set
-- Receive your token!
+1. Navigate to create Add New Log
+1. Select Manual (specifically since we're using the Token-based approach)
+1. Set your values such as your Log Name and Log Set
+1. Receive your token!
 
 I'd **strongly recommend against storing the token directly in your source code**. I personally use Environment Variables for testing purposes and have done so in the example provided below.
 
