@@ -40,3 +40,40 @@ func TestInfo(t *testing.T) {
 func TestError(t *testing.T) {
 	logrus.WithField("the rent", "is too dang high").Error("This is an error entry that should also appear in logentries")
 }
+
+func TestHandlePanic(t *testing.T) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"omg":    true,
+				"err":    err,
+				"number": 100,
+			}).Fatal("The ice breaks!")
+		}
+	}()
+
+	logrus.WithFields(logrus.Fields{
+		"animal": "walrus",
+		"number": 8,
+	}).Debug("Started observing beach")
+
+	logrus.WithFields(logrus.Fields{
+		"animal": "walrus",
+		"size":   10,
+	}).Info("A group of walrus emerges from the ocean")
+
+	logrus.WithFields(logrus.Fields{
+		"omg":    true,
+		"number": 122,
+	}).Warn("The group's number increased tremendously!")
+
+	logrus.WithFields(logrus.Fields{
+		"temperature": -4,
+	}).Debug("Temperature changes")
+
+	logrus.WithFields(logrus.Fields{
+		"animal": "orca",
+		"size":   9009,
+	}).Panic("It's over 9000!")
+}
