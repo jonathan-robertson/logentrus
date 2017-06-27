@@ -3,8 +3,8 @@ package logentrus_test
 import (
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/puddingfactory/logentrus"
+	"github.com/sirupsen/logrus"
 )
 
 func ExampleNew() {
