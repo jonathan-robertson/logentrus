@@ -33,7 +33,6 @@ type Opts struct {
 }
 
 const (
-	version = "v2.0.0"
 	host    = "data.logentries.com"
 	tlsPort = 443
 )
