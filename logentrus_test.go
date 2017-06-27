@@ -49,7 +49,7 @@ func TestHandlePanic(t *testing.T) {
 				"omg":    true,
 				"err":    err,
 				"number": 100,
-			}).Fatal("The ice breaks!")
+			}).Error("The ice breaks! (recovered from panic)")
 		}
 	}()
 
