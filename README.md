@@ -1,10 +1,10 @@
-# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/> [![GoDoc](https://godoc.org/github.com/puddingfactory/logentrus?status.svg)](https://godoc.org/github.com/puddingfactory/logentrus)
+# Logentrus | a [Logentries](https://logentries.com) hook for [Logrus](https://github.com/sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/> [![GoDoc](https://godoc.org/github.com/jonathan-robertson/logentrus?status.svg)](https://godoc.org/github.com/jonathan-robertson/logentrus)
 
 *Logrus created by [Simon Eskildsen](http://sirupsen.com)*
 
 ## Install
 
-`go get -u github.com/sirupsen/logrus github.com/puddingfactory/logentrus`
+`go get -u github.com/sirupsen/logrus github.com/jonathan-robertson/logentrus`
 
 ## Setup
 
@@ -29,7 +29,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/puddingfactory/logentrus"
+	"github.com/jonathan-robertson/logentrus"
 )
 
 func init() {
@@ -65,7 +65,7 @@ Option | Description | Default | Valid options
 --- | --- | --- | ---
 Priority | set a threshold for log severity that should make it to Logentries | `logrus.DebugLevel` (all log types to be sent to Logentries) | `logrus.DebugLevel`, `logrus.InfoLevel`, `logrus.WarnLevel`, `logrus.ErrorLevel`, `logrus.FatalLevel`, `logrus.PanicLevel`
 TimestampFormat | Change the timestamp format | logrus's default time format | `"Jan 2 15:04:05"`, or any format accepted by Golang
-EncTLSConfig | provide a tls config to use embedded ca cert(s) | `nil` (use system's root certs) | see [this example](https://github.com/puddingfactory/logentrus#you-can-provide-your-own-set-of-root-certs-when-using-newencryptedhook)
+EncTLSConfig | provide a tls config to use embedded ca cert(s) | `nil` (use system's root certs) | see [this example](https://github.com/jonathan-robertson/logentrus#you-can-provide-your-own-set-of-root-certs-when-using-newencryptedhook)
 UnencryptedTCP | `true` to disable encryption and still use TCP | `false` | `true` / `false`
 UnencryptedUDP | `true` this to disable encryption and use UDP | `false` | `true` / `false`
 UnencryptedPort | if using an unencrypted connection, choose a port here | `514` | `80`, `514`, and `10000`
@@ -123,7 +123,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/puddingfactory/logentrus"
+	"github.com/jonathan-robertson/logentrus"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package logentrus_test
 import (
 	"os"
 
-	"github.com/puddingfactory/logentrus"
+	"github.com/jonathan-robertson/logentrus"
 	"github.com/sirupsen/logrus"
 )
 
