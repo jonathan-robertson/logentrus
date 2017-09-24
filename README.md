@@ -6,6 +6,14 @@
 
 `go get -u github.com/sirupsen/logrus github.com/jonathan-robertson/logentrus`
 
+## Quickstart
+
+For someone already familiar with Logrus and Logentries (assuming you like the [default options](https://github.com/jonathan-robertson/logentrus#default-options)), this is the only line you need:
+
+```go
+hook, err := logentrus.New(logentriesToken, nil)
+```
+
 ## Setup
 
 First, you should get a token for your logentries account, which you'll need to feed into your app somehow.
@@ -59,6 +67,8 @@ func main() {
 }
 ```
 
+### Options
+
 Each field in logentrus.Opts is entirely optional and will have some default value if necessary.
 
 Option | Description | Default | Valid options
@@ -69,12 +79,6 @@ EncTLSConfig | provide a tls config to use embedded ca cert(s) | `nil` (use syst
 UnencryptedTCP | `true` to disable encryption and still use TCP | `false` | `true` / `false`
 UnencryptedUDP | `true` this to disable encryption and use UDP | `false` | `true` / `false`
 UnencryptedPort | if using an unencrypted connection, choose a port here | `514` | `80`, `514`, and `10000`
-
-Note that the entire logentrus.Opts param is optional as well. So if you're happy with the defaults, just enter `nil` as shown below:
-
-```go
-hook, err := logentrus.New(logentriesToken, nil)
-```
 
 ## Features
 
